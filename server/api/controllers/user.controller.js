@@ -39,7 +39,7 @@ const loginUser = async (req, res, next)=>{
                 id: user._id,
                 mail: user.mail,
                 idUsuario: user.idUsuario,
-                tienda: user.tienda,
+                departamento: user.departamento,
                 user: user.user,
                 rol : user.rol
                 

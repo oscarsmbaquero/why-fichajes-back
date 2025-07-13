@@ -3,8 +3,8 @@ import { Fichajes } from "../models/Fichaje.Model.js";
 
 const createFichaje = async (req, res) => {
   try {
-    const { idUsuario, dia, entrada, salida } = req.body;
-    const newFichaje = new Fichajes({ idUsuario, dia, entrada, salida });
+    const { idUsuario, dia, entrada, salida, project } = req.body;
+    const newFichaje = new Fichajes({ idUsuario, dia, entrada, salida, project });
     await newFichaje.save();
     res.status(201).json(newFichaje);
   } catch (error) {
