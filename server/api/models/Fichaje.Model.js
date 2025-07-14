@@ -15,7 +15,8 @@ const fichajeSchema = new Schema(
     lat: { type: Number, required: false },
     lng: { type: Number, required: false },
   },
-  project: { type: String, required: false },
+  // project: { type: String, required: false },
+  project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' }
 },
 {
     timestamps: true,

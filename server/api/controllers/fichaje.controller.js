@@ -4,7 +4,13 @@ import { Fichajes } from "../models/Fichaje.Model.js";
 const createFichaje = async (req, res) => {
   try {
     const { idUsuario, dia, entrada, salida, project } = req.body;
-    const newFichaje = new Fichajes({ idUsuario, dia, entrada, salida, project });
+    const newFichaje = new Fichajes({
+      idUsuario,
+      dia,
+      entrada,
+      salida,
+      project,
+    });
     await newFichaje.save();
     res.status(201).json(newFichaje);
   } catch (error) {
@@ -14,7 +20,10 @@ const createFichaje = async (req, res) => {
 const addSalidaFichaje = async (req, res) => {
   try {
     const { idUsuario, dia, salida } = req.body;
-    const fichajeExistente = await Fichajes.findOne({ idUsuario: idUsuario, dia: dia });
+    const fichajeExistente = await Fichajes.findOne({
+      idUsuario: idUsuario,
+      dia: dia,
+    });
 
     if (fichajeExistente) {
       // Si existe, actualiza el campo 'salida'
@@ -27,11 +36,15 @@ const addSalidaFichaje = async (req, res) => {
   }
 };
 
-
 const getFichajesByUser = async (req, res) => {
   try {
     const { idUsuario } = req.params;
-    let fichajes = await Fichajes.find({ idUsuario: idUsuario });
+
+    const fichajes = await Fichajes.find({ idUsuario }).populate(
+      "project",
+      "nombre"
+    ); 
+
     res.status(200).json(fichajes);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -48,4 +61,9 @@ const getFichajesByUserAndDate = async (req, res) => {
   }
 };
 
-export { createFichaje, getFichajesByUser, getFichajesByUserAndDate, addSalidaFichaje };
+export {
+  createFichaje,
+  getFichajesByUser,
+  getFichajesByUserAndDate,
+  addSalidaFichaje,
+};
