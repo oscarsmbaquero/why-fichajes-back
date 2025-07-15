@@ -54,7 +54,10 @@ const getFichajesByUser = async (req, res) => {
 const getFichajesByUserAndDate = async (req, res) => {
   try {
     const { idUsuario, date } = req.params;
-    let fichajes = await Fichajes.find({ idUsuario: idUsuario, dia: date });
+    let fichajes = await Fichajes.find({ idUsuario: idUsuario, dia: date }).populate(
+      "project",
+      "nombre"
+    );
     res.status(200).json(fichajes);
   } catch (error) {
     res.status(500).json({ message: error.message });
