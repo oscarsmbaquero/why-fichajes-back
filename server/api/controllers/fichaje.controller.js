@@ -3,38 +3,46 @@ import { Fichajes } from "../models/Fichaje.Model.js";
 
 const createFichaje = async (req, res) => {
   try {
-    const { idUsuario, dia, entrada, salida, project } = req.body;
+    const { idUsuario, dia, entrada, project } = req.body;
+
     const newFichaje = new Fichajes({
       idUsuario,
       dia,
       entrada,
-      salida,
       project,
     });
+
     await newFichaje.save();
     res.status(201).json(newFichaje);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 const addSalidaFichaje = async (req, res) => {
   try {
-    const { idUsuario, dia, salida } = req.body;
+    const { idUsuario, dia, salida, project } = req.body;
+
     const fichajeExistente = await Fichajes.findOne({
-      idUsuario: idUsuario,
-      dia: dia,
-    });
+      idUsuario,
+      dia,
+      salida: null,
+      project
+    }).sort({ "entrada.hora": -1 }); // el más reciente sin salida
 
     if (fichajeExistente) {
-      // Si existe, actualiza el campo 'salida'
       fichajeExistente.salida = salida;
       await fichajeExistente.save();
       return res.status(200).json(fichajeExistente);
+    } else {
+      return res.status(404).json({ message: 'No se encontró un fichaje abierto para cerrar.' });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 const getFichajesByUser = async (req, res) => {
   try {
