@@ -1,4 +1,5 @@
 import { Fichajes } from "../models/Fichaje.Model.js";
+import { Project } from "../models/Project.Model.js";
 //import { User } from "../models/User.Model";
 
 const createFichaje = async (req, res) => {
@@ -23,14 +24,19 @@ const addSalidaFichaje = async (req, res) => {
   try {
     const { idUsuario, dia, salida, project } = req.body;
 
-    const fichajeExistente = await Fichajes.findOne({
-      idUsuario,
-      dia,
-      salida: null,
-      project
-    }).sort({ "entrada.hora": -1 }); // el más reciente sin salida
+   const fichajeExistente = await Fichajes.findOne({
+  idUsuario,
+  dia,
+  project,
+  $or: [
+    { salida: null },
+    { salida: { $exists: false } }
+  ]
+}).sort({ "entrada.hora": -1 });
 
     if (fichajeExistente) {
+      console.log(fichajeExistente);
+      
       fichajeExistente.salida = salida;
       await fichajeExistente.save();
       return res.status(200).json(fichajeExistente);
