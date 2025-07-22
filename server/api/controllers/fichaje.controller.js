@@ -5,13 +5,14 @@ import mongoose from 'mongoose';
 
 const createFichaje = async (req, res) => {
   try {
-    const { idUsuario, dia, entrada, project } = req.body;
+    const { idUsuario, dia, entrada, project, tarea } = req.body;
 
     const newFichaje = new Fichajes({
       idUsuario,
       dia,
       entrada,
       project,
+      tarea,
     });
 
     await newFichaje.save();
@@ -76,47 +77,99 @@ const getFichajesByUserAndDate = async (req, res) => {
   }
 };
 
-export const sumarHorasEnProyecto = async (fichaje) => {
+// const sumarHorasEnProyectoOld = async (fichaje) => {
+//   try {
+//     const { entrada, salida, project } = fichaje;
+
+//     if (!entrada?.hora || !salida?.hora) {
+//       throw new Error('Fichaje incompleto (sin hora de entrada o salida)');
+//     }
+
+//     // Parsear 'HH:mm:ss' a minutos
+//     const [h1, m1, s1] = entrada.hora.split(':').map(Number);
+//     const [h2, m2, s2] = salida.hora.split(':').map(Number);
+
+//     const minutosEntrada = h1 * 60 + m1 + s1 / 60;
+//     const minutosSalida = h2 * 60 + m2 + s2 / 60;
+
+//     const minutosInvertidos = Math.max(0, minutosSalida - minutosEntrada);
+
+//     // Convertir minutos a horas decimales
+//     const horasInvertidas = minutosInvertidos / 60;
+
+//     // Buscar proyecto
+//     const proyecto = await Project.findById(project);
+//     console.log(proyecto, 'proyectoEncontrado');
+
+//     if (!proyecto) {
+//       throw new Error('Proyecto no encontrado');
+//     }
+
+//     // Convertir horas actuales a número (por si están guardadas como string)
+//     const horasActuales = parseFloat(proyecto.horas) || 0;
+
+//     // Sumar horas invertidas
+//     proyecto.horas = (horasActuales + horasInvertidas).toFixed(2); // con 2 decimales
+
+//     console.log(proyecto);
+    
+//     await proyecto.save();
+
+//     console.log(`Se sumaron ${horasInvertidas.toFixed(2)} horas al proyecto ${proyecto.nombre}. Total: ${proyecto.horas} horas.`);
+//   } catch (error) {
+//     console.error('Error al sumar horas en proyecto:', error);
+//   }
+// };
+
+const sumarHorasEnProyecto = async (fichaje) => {
   try {
-    const { entrada, salida, project } = fichaje;
+    const { entrada, salida, project, tarea } = fichaje;
 
     if (!entrada?.hora || !salida?.hora) {
       throw new Error('Fichaje incompleto (sin hora de entrada o salida)');
     }
 
-    // Parsear 'HH:mm:ss' a minutos
+    // Parsear horas
     const [h1, m1, s1] = entrada.hora.split(':').map(Number);
     const [h2, m2, s2] = salida.hora.split(':').map(Number);
 
     const minutosEntrada = h1 * 60 + m1 + s1 / 60;
     const minutosSalida = h2 * 60 + m2 + s2 / 60;
-
     const minutosInvertidos = Math.max(0, minutosSalida - minutosEntrada);
-
-    // Convertir minutos a horas decimales
     const horasInvertidas = minutosInvertidos / 60;
 
     // Buscar proyecto
     const proyecto = await Project.findById(project);
+    console.log(proyecto, 'proyectoddd');
+    
     if (!proyecto) {
       throw new Error('Proyecto no encontrado');
     }
 
-    // Convertir horas actuales a número (por si están guardadas como string)
+    // Sumar al proyecto
     const horasActuales = parseFloat(proyecto.horas) || 0;
-
-    // Sumar horas invertidas
-    proyecto.horas = (horasActuales + horasInvertidas).toFixed(2); // con 2 decimales
-
-    console.log(proyecto);
+    proyecto.horas = parseFloat((horasActuales + horasInvertidas).toFixed(4));
+    console.log(tarea, 'tarea');
+    console.log((proyecto.tareas), 'tareas');
     
-    await proyecto.save();
+    
+    // Sumar a la tarea si hay
+    if (tarea && Array.isArray(proyecto.tareas)) {
+      // const tareaEncontrada = proyecto.tareas.find(t => t._id.toString() === tarea.toString());
+      const tareaEncontrada = proyecto.tareas.find(t => t._id.equals(tarea));
+      if (tareaEncontrada) {
+        const horasTarea = parseFloat(tareaEncontrada.horas) || 0;
+        tareaEncontrada.horas = parseFloat((horasTarea + horasInvertidas).toFixed(4));
+      }
+    }
 
-    console.log(`Se sumaron ${horasInvertidas.toFixed(2)} horas al proyecto ${proyecto.nombre}. Total: ${proyecto.horas} horas.`);
+    await proyecto.save();
   } catch (error) {
-    console.error('Error al sumar horas en proyecto:', error);
+    console.error(' Error al sumar horas en proyecto o tarea:', error);
   }
 };
+
+
 
 
 export {
