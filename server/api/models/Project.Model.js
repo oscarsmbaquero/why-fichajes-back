@@ -3,7 +3,8 @@ const Schema = mongoose.Schema;
 
 const TareaSchema = new Schema({
   nombre: { type: String, required: true },
-  horas: { type: Number, default: 0 }
+  horas: { type: Number, default: 0 },
+  estimacion: { type: Number, default: 0 },
 }, { _id: true }); 
 
 const projectsSchema = new Schema({

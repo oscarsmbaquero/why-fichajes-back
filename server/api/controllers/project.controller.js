@@ -22,6 +22,27 @@ const getProjects = async (req, res) => {
   }
 };
 
+const addTarea = async (req, res) => {
+  const { idProject } = req.params;
+  const tarea = req.body; 
+
+  try {
+    const project = await Project.findById(idProject);
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Proyecto no encontrado' });
+    }
+
+    project.tareas.push(tarea);
+    await project.save();
+
+    return res.status(200).json({ message: 'Tarea añadida correctamente', project });
+  } catch (error) {
+    console.error('Error al añadir la tarea:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
 
 
-export { addProject, getProjects };
+
+export { addProject, getProjects, addTarea };

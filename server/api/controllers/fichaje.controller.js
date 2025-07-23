@@ -35,7 +35,6 @@ const addSalidaFichaje = async (req, res) => {
      
     if (fichajeExistente) {
       fichajeExistente.salida = salida;
-      console.log(fichajeExistente);
       await sumarHorasEnProyecto(fichajeExistente);
       await fichajeExistente.save();
       return res.status(200).json(fichajeExistente);
@@ -140,7 +139,6 @@ const sumarHorasEnProyecto = async (fichaje) => {
 
     // Buscar proyecto
     const proyecto = await Project.findById(project);
-    console.log(proyecto, 'proyectoddd');
     
     if (!proyecto) {
       throw new Error('Proyecto no encontrado');
@@ -148,9 +146,7 @@ const sumarHorasEnProyecto = async (fichaje) => {
 
     // Sumar al proyecto
     const horasActuales = parseFloat(proyecto.horas) || 0;
-    proyecto.horas = parseFloat((horasActuales + horasInvertidas).toFixed(4));
-    console.log(tarea, 'tarea');
-    console.log((proyecto.tareas), 'tareas');
+    proyecto.horas = parseFloat((horasActuales + horasInvertidas).toFixed(2));
     
     
     // Sumar a la tarea si hay
@@ -158,8 +154,10 @@ const sumarHorasEnProyecto = async (fichaje) => {
       // const tareaEncontrada = proyecto.tareas.find(t => t._id.toString() === tarea.toString());
       const tareaEncontrada = proyecto.tareas.find(t => t._id.equals(tarea));
       if (tareaEncontrada) {
+      console.log('tareaEncontrada', tareaEncontrada);
+      
         const horasTarea = parseFloat(tareaEncontrada.horas) || 0;
-        tareaEncontrada.horas = parseFloat((horasTarea + horasInvertidas).toFixed(4));
+        tareaEncontrada.horas = parseFloat((horasTarea + horasInvertidas).toFixed(2));
       }
     }
 
