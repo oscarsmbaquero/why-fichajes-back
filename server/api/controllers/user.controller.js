@@ -41,7 +41,8 @@ const loginUser = async (req, res, next)=>{
                 idUsuario: user.idUsuario,
                 departamento: user.departamento,
                 user: user.user,
-                rol : user.rol
+                rol : user.rol,
+                token: token,
                 
               },
             });
